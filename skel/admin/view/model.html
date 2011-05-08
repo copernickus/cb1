@@ -1,0 +1,72 @@
+{% extends "view/layouts/admin.html" %}
+{% block title %}{% trans "Models data management" %}{% endblock %}
+
+{% block body %}
+<h1>{% trans "Models data management" %}</h1>
+        <p>
+        {% for model in models %}
+        {% ifequal model this_model %}
+        <strong>{{ model }}</strong>
+        {% else %}
+        <a href="/admin/model/{{ model }}">{{ model }}</a>
+        {% endifequal %}
+        {% if not forloop.last %}
+        |
+        {% endif %}
+        {% endfor %}
+        </p>
+        {% if this_model %}
+        <p>
+        <form name="new" action="/admin/create/{{ this_model }}">
+            <input type="submit" value="+ New {{ this_model }}" />
+            &nbsp; &nbsp; {% trans "See also" %}: <a href="/doc/{{ this_model }}">Documentation for the <code>{{ this_model }}</code> model</a>
+        </form>
+        </p>
+        {% endif %}
+        <table border=1>
+            {% if attribute_names %}
+            <tr>
+                {% for attr in attribute_names %}
+                <th>{{ attr }}</th>
+                {% endfor %}
+            </tr>
+            {% endif %}
+        {% for record in records %}
+        <tr>
+            {% for key, val, datatype in record %}
+            {% if datatype == "id" %}
+            <td><strong><a href="/admin/record/{{ val }}">{{ val }}</a></strong></td>
+            {% else %}
+            {% if datatype == "datetime" %}
+            <td>{{ val|date:"N j, Y, P" }}</td>
+            {% else %}
+            {% if datatype == "foreign_id" %}
+            <td><a href="/admin/record/{{ val }}">{{ val }}</a></td>
+            {% else %}
+            {% if datatype == "string" or datatype == "binary" %}
+            <td>{{ val|truncatewords:8 }}</td>
+            {% else %}
+            <td>{{ val }}</td>
+            {% endif %}
+            {% endif %}
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </table>
+        {% if pages %}
+        {% ifnotequal pages|length "1" %}
+        <p>
+        Pages: 
+        {% for page in pages %}
+        {% ifequal page this_page %}
+        <strong>{{ page }}</strong>
+        {% else %}
+        <a href="/admin/model/{{ this_model }}/{{ page }}">{{ page }}</a>
+        {% endifequal %}
+        {% endfor %}
+        </p>
+        {% endifnotequal %}
+        {% endif %}
+        {% endblock %}
